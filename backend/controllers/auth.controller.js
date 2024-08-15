@@ -13,7 +13,7 @@ const signup = async (req, res) => {
         const user = await User.findOne({username});
 
         if (user) {
-            res.send(400).status({ error: "Username already exists"} );
+            res.status(400).status({ error: "Username already exists"} );
         }
 
         // Hash password
@@ -54,8 +54,37 @@ const signup = async (req, res) => {
     }
 }
 
-const login = (req, res) => {
-    console.log("Login user");   
+const login = async (req, res) => {
+    try {
+        const {username, password} = req.body;
+
+        if (!username) {
+            return res.status(400).json({ error: "Username is required" });
+        }
+
+        if (!password) {
+            return res.status(400).json({ error: "Password is required" });
+        }
+
+        const user = await User.findOne({ username });
+
+        const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
+
+        if (!user || !isPasswordCorrect) {
+            return res.status(400).json({ error: "Invalid username or password" });
+        }
+
+        res.status(200).json({
+            _id: user._id,
+            fullname: user.fullName,
+            username: user.username,
+            profilePic: user.profilePic,
+        });
+
+    } catch (error) {
+        console.log("Error in login controller", error.message);
+        res.status(500).json({ error: "Internal server error"});
+    }  
 }
 
 const logout = (req, res) => {
