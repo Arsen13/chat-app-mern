@@ -78,7 +78,7 @@ const login = async (req, res) => {
 
         res.status(200).json({
             _id: user._id,
-            fullname: user.fullName,
+            fullName: user.fullName,
             username: user.username,
             profilePic: user.profilePic,
         });
